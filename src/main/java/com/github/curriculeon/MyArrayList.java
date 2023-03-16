@@ -4,106 +4,104 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 public class MyArrayList<SomeType> implements MyCollectionInterface<SomeType> {
-    // Variable Declarations
-    private int index; // Holds current jawn in the jawn
-    private SomeType[] content; // Array to hold shit
-    private static final Integer resize = 1; // holds the additional length given to the backbone array when capacity is being reached
-
-    public MyArrayList() { // General constructor
-        index = 0; // Sets index to zero
-        this.content = (SomeType[]) new Object[1]; // Sets the backbone array to a length of 10 (unspecified objects)
+    private SomeType[] array;
+    private int counter;
+    public MyArrayList() {
+        array = (SomeType[]) new Object[10];
+        counter = 0;
     }
 
-    public MyArrayList(SomeType[] valuesToBePopulatedWith) { // Custom constructor
-        // Initiate the backbone array to be bigger than the length as the inputted array
-        this.content = (SomeType[]) new Object[valuesToBePopulatedWith.length + resize];
-        // Loop through the array starting at "index" until reaching the length of the array given as "valuesToBePopulatedWith"
-        // Each iteration of the loop, used teh "add" method that hasn't been created yet to add the given object to the array
-        for (int i = index; i < valuesToBePopulatedWith.length; i++) {
-            content[i] = valuesToBePopulatedWith[i]; // Copy shit over
+    public MyArrayList(SomeType[] valuesToBePopulatedWith) {
+        array = valuesToBePopulatedWith;
+        counter = valuesToBePopulatedWith.length;
+    }
+
+    public void add(SomeType object){
+        if (counter >= array.length){
+            SomeType [] update = (SomeType[]) new Object[array.length+5];
+            System.arraycopy(array,0, update, 0,array.length);
+            array = update;
+            array[counter] = object;
         }
+        else{
+            array[counter] = object;
+        }
+        counter++;
     }
 
     @Override
-    public void add(SomeType objectToBeAdded) { // Adds an object into the arraylist
-        Integer threshhold = content.length - 1; // The threshhold for resizing the array is 1 less than the current length
-        if (index <= threshhold) { // Adds length to array if needed
-            Integer newSize = content.length + resize; // Bigger array size
-            SomeType[] newContent = (SomeType[]) new Object[newSize]; // Declare bigger array
-            System.arraycopy(content, 0, newContent, 0, content.length); // Copies the array from start to end from old array to new array
-            content = newContent; // Updates backbone array with new information
-        }
-        content[index] = objectToBeAdded; // Adds shit to the array
-        index++; // Increment index bc we just added shit
-    }
-
-    @Override
-    public SomeType get(int index) { // Returns an object from the backbone arrray at the given index
-        SomeType returnVar = null; // declares a return variable
-        if (index < this.index && index > -1) { // if given index is a valid input
-            returnVar = this.content[index]; // sets return variable equal to the wanted object
-        }
-        return returnVar; // returns the wanted object if valid input
-    }
-
-    @Override
-    public Boolean contains(SomeType objectToCheckFor) {
-        boolean returnVar = false;
-        boolean flag = false; // Flag that is only true if the objectToCheckFor in contained in the content array
-
-        // For loop that loops thru the content array and switches the flag to true if the objectToCheckFor is contained
-        for (int i = 0; i < content.length; i++) {
-            if (content[i] == null) { // Null catcher
+    public void remove(SomeType objectToRemove) { // This should only remove one index
+        SomeType [] update = (SomeType[]) new Object[array.length];
+        int index = 0;
+        for (SomeType check: array){
+            if (check == null){
                 continue;
-            } else if (content[i].equals(objectToCheckFor)) { // If the current iteration of the content array's object is equal to the objectToCheckFor
-                return true;
             }
+            if(!check.equals(objectToRemove)){
+                update[index] = check;
+                index++;
+            }else{counter--;}
         }
+        array = update;
 
-        return returnVar; // Returns the status of flag, held as returnVar
-    }
-
-    @Override
-    public Integer size() {
-        return this.index;
-    }
-
-    @Override
-    public void remove(SomeType objectToRemove) {
-        int contentLength =  content.length;
-        int newContentLength = contentLength - 1;
-        SomeType[] newContent = (SomeType[]) new Object[newContentLength]; // Creates new generic array with one less length than content
-
-        int newContentCurrentIndex = 0;
-        for (int currentIndex = 0; currentIndex < content.length; currentIndex++) { // Loops thru the
-            SomeType currentObject = content[currentIndex];
-
-            if (currentObject != objectToRemove) { // Is current object is NOT objectToRemove
-                newContent[newContentCurrentIndex] = currentObject; // Populates new array
-                newContentCurrentIndex++;
-            }
-        }
-        index--;
-        this.content = newContent; // Copies array over
     }
 
     @Override
     public void remove(int indexOfObjectToRemove) {
-        remove(get(indexOfObjectToRemove));
+        SomeType [] update = (SomeType[]) new Object[array.length];
+        int index = 0;
+        for (int check = 0; check<array.length; check++ ){
+            if (array[check] == null){
+                break;
+            }
+            if(check != indexOfObjectToRemove){
+                update[index] = array[check];
+                index++;
+            }
+        }
+        array = update;
+        counter--;
     }
 
+    @Override
+    public SomeType get(int indexOfElement) {
+        try{
+            return array[indexOfElement];
+        }catch (Exception e){
+            return null;
+        }
+    }
 
     @Override
-    public Iterator<SomeType> iterator() { // Not necessary to do because this method isn't being tested
+    public Boolean contains(SomeType objectToCheckFor) {
+        for (SomeType check: array)
+            if (objectToCheckFor.equals(check)){
+                return true;
+            }
+        return false;
+    }
+
+    @Override
+    public Integer size() {
+        return counter;
+    }
+
+    @Override
+    public Iterator<SomeType> iterator() {
         return new MyArrayListIterator<>(this);
     }
 
-    private static class MyArrayListIterator<SomeType> implements Iterator<SomeType> {
-        private MyArrayList<SomeType> list;
+    @Override
+    public String toString() {
+        return Arrays.toString(array);
+    }
+
+    private static class MyArrayListIterator<SomeType> implements Iterator<SomeType>{
+        private  MyArrayList<SomeType> list;
 
         private int currentIndex;
 
-        public MyArrayListIterator(MyArrayList<SomeType> list) {
+        public MyArrayListIterator(MyArrayList<SomeType> list){
             this.list = list;
             this.currentIndex = 0;
         }
@@ -118,29 +116,4 @@ public class MyArrayList<SomeType> implements MyCollectionInterface<SomeType> {
             return list.get(currentIndex++);
         }
     }
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

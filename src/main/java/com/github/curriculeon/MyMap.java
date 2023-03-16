@@ -1,55 +1,76 @@
 package com.github.curriculeon;
 
+import java.security.Key;
+
 public class MyMap<KeyType, ValueType> implements MyMapInterface<KeyType, ValueType> {
 
-    KeyType keyValue; // Key
-    ValueType value; // Value
-    private MyArrayList<KeyValue<KeyType, ValueType>> map; // Map
+    private MyArrayList<KeyValue<KeyType, ValueType>> map;
 
     public MyMap() {
-        this.map = new MyArrayList<>();
+        this.map = new MyArrayList<KeyValue<KeyType, ValueType>>();
     }
 
-    public MyMap(MyArrayList<KeyValue<KeyType, ValueType>> map) {
-        this.map = map;
-    }
-
-
-    @Override
-    public void put(KeyType key, ValueType value){
-        KeyValue keyvalue = new KeyValue<>(key,value); // Creates object to hold two objects in
-        map.add(keyvalue); // adds it to list
+    public MyMap(MyArrayList<KeyValue<KeyType, ValueType>> myArrayList) {
+        this.map = myArrayList;
     }
 
     @Override
-    public ValueType get(KeyType key){
-        for(KeyValue<KeyType,ValueType> keyvalue : map) { // goes thru each key value in the map's arrayList backbone
-            KeyType currentKey = keyvalue.getKey(); // Sets the current key equal to the current arraylist index's keyvalue
-            if (currentKey.equals(key) ) { // If the current key is the one we want
-                return keyvalue.getValue(); // return the value of the current key
+    public void put(KeyType key, ValueType value) {
+        KeyValue keyValue = new KeyValue(key, value);
+        map.add(keyValue);
+    }
+
+    @Override
+    public ValueType get(KeyType key) {
+        for (int keySpot = 0; keySpot< map.size();keySpot++){
+            KeyType currentKey = map.get(keySpot).getKey();
+            boolean isCorrectKey = currentKey.equals(key);
+            if (isCorrectKey) {
+                ValueType currentValue = map.get(keySpot).getValue();
+                return currentValue;
             }
+
         }
-        return null; // returns null if it isn't in the map
-    }
-
-    @Override
-    public MySet<KeyType> getKeySet(){
+        /*for (KeyValue<KeyType, ValueType> keyValue : map) {
+            KeyType currentKey = keyValue.getKey();
+            boolean isCorrectKey = currentKey.equals(key);
+            if (isCorrectKey) {
+                ValueType currentValue = keyValue.getValue();
+                return currentValue;
+            }
+        }*/
         return null;
     }
 
     @Override
-    public MyCollectionInterface<ValueType> getValues(){
-        return null;
+    public MySet<KeyType> getKeySet() {
+        MySet<KeyType> set = new MySet<>();
+        for (int keySpot = 0; keySpot< map.size();keySpot++){
+            set.add(map.get(keySpot).getKey());
+        }
+        return set;
     }
 
     @Override
-    public MySet<KeyValue<KeyType, ValueType>> getList(){
-        return null;
+    public MyCollectionInterface<ValueType> getValues() {
+        MyArrayList<ValueType> list = new MyArrayList<>();
+        for (int keySpot = 0; keySpot< map.size();keySpot++){
+            list.add(map.get(keySpot).getValue());
+        }
+        return list;
     }
 
     @Override
-    public MyMapInterface<ValueType, KeyType> invert(){
-        return null;
+    public MySet<KeyValue<KeyType, ValueType>> getList() {
+        MySet<KeyValue<KeyType, ValueType>> set = new MySet<>();
+        for (int keySpot = 0; keySpot< map.size();keySpot++){
+            set.add(new KeyValue<>(map.get(keySpot).getKey(),map.get(keySpot).getValue()));
+        }
+        return set;
     }
 
+    @Override
+    public MyMapInterface<ValueType, KeyType> invert() {
+        return null;
+    }
 }
